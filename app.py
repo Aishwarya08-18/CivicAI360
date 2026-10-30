@@ -7,7 +7,10 @@ from datetime import datetime, timedelta
 import sqlite3, os, re, csv, io, math, json
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "civicai.db"
+if os.environ.get("VERCEL"):
+    DB_PATH = "/tmp/civicai.db"
+else:
+    DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "civicai.db")
 UPLOAD_DIR = BASE_DIR / "static" / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
