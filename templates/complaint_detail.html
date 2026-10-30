@@ -5,7 +5,7 @@
 <div class="detail-grid">
   <div class="detail-main">
     <section class="card"><div class="card-heading"><h2>Issue overview</h2><span class="status-tag {{ complaint.status|lower|replace(' ','-') }}">{{ complaint.status }}</span></div>
-      {% if complaint.image_filename %}<img class="complaint-photo" src="{{ url_for('static', filename='uploads/' + complaint.image_filename) }}" alt="Citizen uploaded issue evidence">{% endif %}
+      {% if complaint.image_filename %}<img class="complaint-photo" src="{{ url_for('uploaded_file', filename=complaint.image_filename) }}" alt="Citizen uploaded issue evidence">{% endif %}
       <p class="description-text">{{ complaint.description }}</p><div class="detail-facts"><div><span>Category</span><b>{{ complaint.category }}</b></div><div><span>Department</span><b>{{ complaint.department }}</b></div><div><span>Location</span><b>{{ complaint.location }}</b></div><div><span>Reported by</span><b>{% if session.get('role') == 'admin' %}{{ complaint.reporter }}{% else %}You / authorized account{% endif %}</b></div></div>
     </section>
     <section class="card"><div class="card-heading"><div><h2>AI-assisted analysis</h2><p>Local rule-based prototype · human review required</p></div><span class="pill">EXPLAINABLE</span></div>

@@ -52,6 +52,18 @@ No Node.js is required for this version.
 
 Keep the terminal open while using the website. Press `Ctrl+C` in the terminal to stop it.
 
+## Deploy to Vercel
+
+1. Push the `CivicAI360` project to a Git provider and import it in Vercel.
+2. In **Project Settings → Environment Variables**, add the following for the environments you will deploy:
+   - `CIVICAI_SECRET_KEY` — a long, random secret used to sign sessions.
+   - `CIVICAI_ADMIN_PASSWORD` — a private password for the `admin` account.
+   - `CIVICAI_OFFICER_PASSWORD` — a private password for the `officer` account.
+   - `CIVICAI_CITIZEN_PASSWORD` — a private password for the `citizen` account.
+3. Deploy or redeploy the project. Vercel routes requests through `api/index.py`.
+
+Do not use the local demo passwords on a deployed site. Vercel's filesystem is temporary: SQLite data and uploaded photos can disappear between invocations or deployments. This setup is suitable for a disposable demo, not durable complaint records; use a hosted database and object storage before relying on it.
+
 ## Demo accounts
 
 | Role | Username | Password |

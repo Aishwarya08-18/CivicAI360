@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, Response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, Response, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
@@ -9,15 +9,19 @@ import sqlite3, os, re, csv, io, math, json
 BASE_DIR = Path(__file__).resolve().parent
 if os.environ.get("VERCEL"):
     DB_PATH = "/tmp/civicai.db"
+    UPLOAD_DIR = Path("/tmp/civicai-uploads")
 else:
     DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "civicai.db")
-UPLOAD_DIR = BASE_DIR / "static" / "uploads"
+    UPLOAD_DIR = BASE_DIR / "static" / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("CIVICAI_SECRET_KEY", "change-this-demo-secret-before-deployment")
+secret_key = os.environ.get("CIVICAI_SECRET_KEY")
+if os.environ.get("VERCEL") and not secret_key:
+    raise RuntimeError("Set CIVICAI_SECRET_KEY in the Vercel project environment variables.")
+app.secret_key = secret_key or "change-this-demo-secret-before-deployment"
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 
 CATEGORIES = [
@@ -133,6 +137,20 @@ def init_db():
         ("officer", "Officer123!", "officer", "Drainage Department"),
         ("citizen", "Citizen123!", "citizen", None),
     ]
+    if os.environ.get("VERCEL"):
+        password_vars = {
+            "admin": "CIVICAI_ADMIN_PASSWORD",
+            "officer": "CIVICAI_OFFICER_PASSWORD",
+            "citizen": "CIVICAI_CITIZEN_PASSWORD",
+        }
+        missing = [name for name in password_vars.values() if not os.environ.get(name)]
+        if missing:
+            raise RuntimeError(f"Set these Vercel environment variables: {', '.join(missing)}")
+        demos = [
+            ("admin", os.environ[password_vars["admin"]], "admin", None),
+            ("officer", os.environ[password_vars["officer"]], "officer", "Drainage Department"),
+            ("citizen", os.environ[password_vars["citizen"]], "citizen", None),
+        ]
     for username, password, role, department in demos:
         existing = conn.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
         if not existing:
@@ -590,7 +608,11 @@ def export_csv():
 
 @app.route("/api/health")
 def health():
-    return jsonify({"status":"ok","app":"CivicAI 360","database":DB_PATH.exists()})
+    return jsonify({"status":"ok","app":"CivicAI 360","database":Path(DB_PATH).exists()})
+
+@app.route("/uploads/<path:filename>")
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_DIR, filename)
 
 @app.errorhandler(413)
 def too_large(_):
