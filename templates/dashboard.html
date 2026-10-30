@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · CivicAI 360{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><div class="eyebrow">{{ session.get('role','')|upper }} WORKSPACE</div><h1>{% if session.get('role') == 'citizen' %}My complaints{% elif session.get('role') == 'officer' %}Department work queue{% else %}Civic command center{% endif %}</h1><p>{% if session.get('role') == 'citizen' %}Track the progress of the reports you submitted.{% elif session.get('role') == 'officer' %}Review and update complaints routed to your department.{% else %}A live operational view of complaints stored in this prototype.{% endif %}</p></div>
+  {% if session.get('role') == 'citizen' %}
+    <a class="btn primary" href="{{ url_for('new_complaint') }}">＋ New complaint</a>
+  {% endif %}
+</section>
+{% if session.get('role') != 'citizen' %}
+<div class="stats-grid">
+  <div class="stat-card"><span>Total reports</span><strong>{{ counts.total }}</strong><small>All recorded complaints</small></div>
+  <div class="stat-card"><span>Open reports</span><strong>{{ counts.open }}</strong><small>Not yet closed</small></div>
+  <div class="stat-card alert-stat"><span>High / critical open</span><strong>{{ counts.critical }}</strong><small>Prioritize human review</small></div>
+  <div class="stat-card"><span>Resolved</span><strong>{{ counts.resolved }}</strong><small>Marked resolved</small></div>
+</div>
+<div class="dashboard-grid">
+  <section class="card"><div class="card-heading"><div><h2>Reports by category</h2><p>Counts from stored complaint records</p></div><span class="pill">LIVE DATA</span></div>
+    <div class="bar-list">
+      {% for item in categories %}
+      <div class="bar-row"><div class="bar-label"><span>{{ item.category }}</span><b>{{ item.count }}</b></div><div class="bar-track"><span style="width: {{ (item.count / (counts.total if counts.total else 1) * 100)|round }}%"></span></div></div>
+      {% else %}<p class="empty">No complaints yet.</p>{% endfor %}
+    </div>
+  </section>
+  <section class="card insight-card"><div class="eyebrow">AI INTELLIGENCE</div><h2>Signals worth reviewing</h2><div class="insight-line"><span class="insight-icon orange">↗</span><div><b>{{ counts.duplicates }} potential matches</b><p>Similarity suggestions require human review.</p></div></div><div class="insight-line"><span class="insight-icon teal">⟳</span><div><b>{{ counts.recurring }} reopened reports</b><p>Review whether a previous fix has held.</p></div></div><div class="insight-line"><span class="insight-icon purple">◎</span><div><b>Explainable prioritization</b><p>Each report includes the factors behind its score.</p></div></div></section>
+</div>
+{% endif %}
+<section class="card table-card">
+  <div class="card-heading"><div><h2>{% if session.get('role') == 'citizen' %}Your report history{% else %}Complaint queue{% endif %}</h2><p>Open a report to see analysis, related issues, and timeline.</p></div><input id="complaintSearch" class="search-input" placeholder="Search complaints..." aria-label="Search complaints"></div>
+  <div class="table-wrap"><table id="complaintsTable"><thead><tr><th>Reference</th><th>Issue</th><th>Category</th><th>Priority</th><th>Status</th><th>Department</th><th>Updated</th><th></th></tr></thead><tbody>
+  {% for c in complaints %}
+  <tr><td><span class="reference">{{ c.public_id }}</span></td><td><b>{{ c.title }}</b><small class="table-sub">{{ c.location }}</small></td><td>{{ c.category }}</td><td><span class="priority {{ c.priority|lower }}">{{ c.priority }}</span><small class="table-sub">Score {{ c.priority_score }}/100</small></td><td><span class="status-tag {{ c.status|lower|replace(' ','-') }}">{{ c.status }}</span></td><td>{{ c.department }}</td><td>{{ c.updated_at[:10] }}</td><td><a class="table-link" href="{{ url_for('complaint_detail', complaint_id=c.id) }}">View →</a></td></tr>
+  {% else %}<tr><td colspan="8" class="empty">No complaints match your workspace yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% if session.get('role') == 'admin' and recent_logs %}
+<section class="card"><div class="card-heading"><div><h2>Recent audit activity</h2><p>Key changes recorded by the prototype.</p></div></div><div class="audit-list">{% for log in recent_logs %}<div class="audit-row"><span class="audit-dot"></span><div><b>{{ log.actor }} · {{ log.action|replace('_',' ') }}</b><p>{{ log.details or 'Record updated' }} · {{ log.created_at }}</p></div></div>{% endfor %}</div></section>
+{% endif %}
+{% endblock %}

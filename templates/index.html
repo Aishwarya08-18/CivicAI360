@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}CivicAI 360 · Smarter civic action{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow"><span class="pulse"></span> AI-POWERED CIVIC INTELLIGENCE</div>
+    <h1>Turn citizen reports<br><span>into civic action.</span></h1>
+    <p class="hero-text">One intelligent platform to understand public issues, connect related reports, prioritize what matters, and track resolution transparently.</p>
+    <div class="hero-actions">
+      {% if session.get('role') == 'citizen' %}
+        <a class="btn primary" href="{{ url_for('new_complaint') }}">＋ Report a problem</a>
+        <a class="btn secondary" href="{{ url_for('dashboard') }}">Open dashboard →</a>
+      {% elif session.get('user_id') %}
+        <a class="btn primary" href="{{ url_for('dashboard') }}">Open your workspace →</a>
+        <a class="btn secondary" href="#how-it-works">How it works</a>
+      {% else %}
+        <a class="btn primary" href="{{ url_for('login') }}">Explore the platform →</a>
+        <a class="btn secondary" href="#how-it-works">How it works</a>
+      {% endif %}
+    </div>
+    <div class="trust-row"><span>✓ Explainable priorities</span><span>✓ Duplicate detection</span><span>✓ Transparent tracking</span></div>
+  </div>
+  <div class="hero-panel">
+    <div class="panel-top"><div><span class="live-dot"></span> CIVIC COMMAND CENTER</div><span class="tiny-label">DEMO DATA</span></div>
+    <div class="hero-metric-grid">
+      <div class="hero-metric"><span>Total reports</span><strong>{{ stats.total }}</strong><small>Across issue categories</small></div>
+      <div class="hero-metric"><span>Open issues</span><strong>{{ stats.open }}</strong><small>Need attention</small></div>
+      <div class="hero-metric"><span>Resolved</span><strong>{{ stats.resolved }}</strong><small>Marked resolved</small></div>
+      <div class="hero-metric"><span>Categories</span><strong>{{ stats.categories }}</strong><small>Issue types represented</small></div>
+    </div>
+    <div class="mini-issue"><div class="issue-icon orange">!</div><div><b>Priority-led response</b><p>AI-assisted triage with human review.</p></div><span class="status-tag high">ACTIVE</span></div>
+    <div class="mini-issue"><div class="issue-icon teal">⌖</div><div><b>Location intelligence</b><p>Find concentrations and recurring problems.</p></div><span class="status-tag info">MAP</span></div>
+  </div>
+</section>
+<section class="workflow-section" id="how-it-works">
+  <div class="section-heading"><div class="eyebrow">FROM REPORT TO RESOLUTION</div><h2>Four stages. One connected workflow.</h2><p>Designed to turn unstructured complaints into useful, trackable decisions.</p></div>
+  <div class="workflow-grid">
+    <article class="workflow-card"><span class="step">01</span><div class="workflow-icon">↗</div><h3>Capture</h3><p>Citizens report a problem with a description, location, and optional photo.</p></article>
+    <article class="workflow-card"><span class="step">02</span><div class="workflow-icon">✳</div><h3>Understand</h3><p>Local language rules summarize, categorize, and explain priority factors.</p></article>
+    <article class="workflow-card"><span class="step">03</span><div class="workflow-icon">⌖</div><h3>Reveal</h3><p>Connect likely related reports and highlight geographic concentrations.</p></article>
+    <article class="workflow-card"><span class="step">04</span><div class="workflow-icon">✓</div><h3>Act</h3><p>Route to a department, publish updates, and track the outcome.</p></article>
+  </div>
+</section>
+<section class="feature-strip"><div><span class="eyebrow">BUILT FOR TRUST</span><h2>AI that explains itself.</h2><p>Recommendations are transparent, records stay traceable, and people remain in control of important decisions.</p></div><div class="feature-points"><div>✓ <span>Explainable priority scoring</span></div><div>✓ <span>Duplicate suggestions—not automatic merges</span></div><div>✓ <span>Citizen-visible status timeline</span></div><div>✓ <span>Human review for safety-related issues</span></div></div></section>
+<div class="demo-note"><b>Prototype note:</b> This version uses a local SQLite database and rule-based AI fallback logic. The sample records are synthetic and do not represent actual government data.</div>
+{% endblock %}

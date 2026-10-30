@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Report an issue · CivicAI 360{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">CAPTURE A CIVIC ISSUE</div><h1>Report a problem</h1><p>Share what happened and where. The system will suggest a category and priority for review.</p></div><a class="btn secondary" href="{{ url_for('dashboard') }}">← Back to dashboard</a></section>
+<form class="form-layout" method="post" enctype="multipart/form-data">
+  <div class="card form-card">
+    <div class="form-section-title"><span>01</span><div><h2>Issue details</h2><p>Describe the problem clearly.</p></div></div>
+    <label>Complaint title <span class="required">*</span><input name="title" required maxlength="140" placeholder="e.g. Pothole near the bus stop"></label>
+    <label>Description <span class="required">*</span><textarea name="description" id="description" rows="5" required maxlength="4000" placeholder="What is happening? Who or what is affected?"></textarea><small class="field-hint">Include useful details, but avoid sharing private personal information.</small></label>
+    <div class="form-two"><label>Category<select name="category"><option value="">Let CivicAI suggest</option>{% for cat in categories %}<option>{{ cat }}</option>{% endfor %}</select></label><label>How long has this been happening?<input name="duration" placeholder="e.g. since yesterday"></label></div>
+    <label>Photo (optional)<input type="file" name="photo" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" id="photo"><small class="field-hint">PNG, JPG, JPEG or WEBP · Maximum 5 MB.</small><img id="photoPreview" class="photo-preview hidden" alt="Selected image preview"></label>
+  </div>
+  <div class="card form-card">
+    <div class="form-section-title"><span>02</span><div><h2>Issue location</h2><p>Provide an address or choose a point on the demo map.</p></div></div>
+    <label>Address or landmark <span class="required">*</span><input name="location" id="location" required maxlength="250" placeholder="e.g. Central Bus Stand Road"></label>
+    <div id="pickMap" class="pick-map"></div>
+    <div class="form-two"><label>Latitude<input name="latitude" id="latitude" type="number" step="any" placeholder="Optional"></label><label>Longitude<input name="longitude" id="longitude" type="number" step="any" placeholder="Optional"></label></div>
+    <p class="field-hint">Map is for demonstration; coordinates are not independently verified.</p>
+    <div class="privacy-note">🔒 Your report is visible according to role permissions. Do not include sensitive personal details in the public description.</div>
+    <button class="btn primary full" type="submit">Submit complaint →</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Hotspot intelligence · CivicAI 360{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">GEOSPATIAL INTELLIGENCE</div><h1>Community hotspots</h1><p>Geographic clusters of reports with coordinates. Clusters are investigative signals, not proof of a shared cause.</p></div><a class="btn secondary" href="{{ url_for('dashboard') }}">← Dashboard</a></section>
+<div class="card map-card"><div class="card-heading"><div><h2>Issue map</h2><p>Sample coordinates are synthetic demonstration data.</p></div><span class="pill">OPENSTREETMAP</span></div><div id="hotspotMap" class="hotspot-map"></div></div>
+<div class="hotspot-grid">{% for h in hotspots %}<article class="card hotspot-card"><div class="hotspot-top"><span class="hotspot-symbol">⌖</span><span class="status-tag {% if h.open %}high{% else %}resolved{% endif %}">{{ h.open }} open</span></div><h2>{{ h.name }}</h2><div class="hotspot-count">{{ h.count }} <span>reports grouped</span></div><p>{{ h.categories }}</p><div class="coordinates">{{ "%.5f"|format(h.latitude) }}, {{ "%.5f"|format(h.longitude) }}</div></article>{% else %}<div class="card empty-card"><h3>No hotspots detected yet</h3><p>At least two reports need coordinates in the same demonstration grid cell to form a cluster.</p></div>{% endfor %}</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+window.CIVIC_HOTSPOTS = {{ hotspots|map(attribute='latitude')|list|tojson }};
+window.CIVIC_HOTSPOT_DATA = {{ hotspots|tojson }};
+window.CIVIC_ALL_ROWS = {{ all_rows|map(attribute='latitude')|list|tojson }};
+</script>
+{% endblock %}

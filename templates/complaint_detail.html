@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ complaint.public_id }} · CivicAI 360{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">COMPLAINT DETAILS · {{ complaint.public_id }}</div><h1>{{ complaint.title }}</h1><p>{{ complaint.location }} · Submitted {{ complaint.created_at }}</p></div><a class="btn secondary" href="{{ url_for('dashboard') }}">← Back</a></section>
+<div class="detail-grid">
+  <div class="detail-main">
+    <section class="card"><div class="card-heading"><h2>Issue overview</h2><span class="status-tag {{ complaint.status|lower|replace(' ','-') }}">{{ complaint.status }}</span></div>
+      {% if complaint.image_filename %}<img class="complaint-photo" src="{{ url_for('static', filename='uploads/' + complaint.image_filename) }}" alt="Citizen uploaded issue evidence">{% endif %}
+      <p class="description-text">{{ complaint.description }}</p><div class="detail-facts"><div><span>Category</span><b>{{ complaint.category }}</b></div><div><span>Department</span><b>{{ complaint.department }}</b></div><div><span>Location</span><b>{{ complaint.location }}</b></div><div><span>Reported by</span><b>{% if session.get('role') == 'admin' %}{{ complaint.reporter }}{% else %}You / authorized account{% endif %}</b></div></div>
+    </section>
+    <section class="card"><div class="card-heading"><div><h2>AI-assisted analysis</h2><p>Local rule-based prototype · human review required</p></div><span class="pill">EXPLAINABLE</span></div>
+      <div class="summary-box"><span>Generated summary</span><p>{{ complaint.summary }}</p></div>
+      <div class="priority-score-row"><div class="score-circle"><strong>{{ complaint.priority_score }}</strong><span>/100</span></div><div><span class="priority {{ complaint.priority|lower }}">{{ complaint.priority }} priority</span><h3>Why this score?</h3><p>{{ complaint.priority_reason }}</p></div></div>
+      <div class="caution-note">This is a rule-based triage suggestion, not a professional safety assessment. Verify facts and urgency with an authorized person.</div>
+    </section>
+    <section class="card"><div class="card-heading"><div><h2>Related issue suggestions</h2><p>Potential matches are suggestions, not automatic merges.</p></div></div>
+      {% for r in related %}<div class="related-row"><div><b>{{ r.public_id }} · {{ r.title }}</b><p>{{ r.location }} · {{ r.category }} · {{ r.status }}</p><small>{{ r.reason }}</small></div><div class="similarity"><b>{{ r.similarity }}%</b><span>match signal</span></div></div>{% else %}<p class="empty">No strong related-issue candidates found yet.</p>{% endfor %}
+    </section>
+    <section class="card"><div class="card-heading"><div><h2>Progress timeline</h2><p>Public updates and status history.</p></div></div><div class="timeline">{% for u in updates %}<div class="timeline-item"><span class="timeline-marker"></span><div><div class="timeline-head"><b>{{ u.status }}</b><time>{{ u.created_at }}</time></div><p>{{ u.public_message }}</p><small>Updated by {{ u.actor }}</small></div></div>{% endfor %}</div></section>
+    {% if complaint.status == 'Resolved' and session.get('role') == 'citizen' %}
+    <section class="card"><h2>Was the issue resolved?</h2><p class="muted">Your feedback helps administrators understand whether the issue remains fixed.</p><form method="post" action="{{ url_for('submit_feedback', complaint_id=complaint.id) }}"><label>Rating<select name="rating" required>{% for n in range(1,6) %}<option value="{{ n }}" {% if feedback and feedback.rating == n %}selected{% endif %}>{{ n }} / 5</option>{% endfor %}</select></label><label>Comment (optional)<textarea name="comment" rows="2" maxlength="1000" placeholder="Share your feedback"></textarea></label><button class="btn primary" type="submit">Submit feedback</button></form></section>
+    {% endif %}
+  </div>
+  <aside class="detail-side">
+    {% if session.get('role') in ['admin','officer'] and (session.get('role') == 'admin' or session.get('department') == complaint.department) %}
+    <section class="card action-card"><div class="eyebrow">WORKFLOW CONTROL</div><h2>Update complaint</h2><form method="post" action="{{ url_for('update_complaint', complaint_id=complaint.id) }}">
+      <label>Status<select name="status">{% for status in statuses %}<option {% if complaint.status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label>
+      {% if session.get('role') == 'admin' %}<label>Department<select name="department">{% for d in ['Roads and Public Works','Drainage Department','Sanitation Department','Electrical Maintenance','Water Supply Department','Public Works Department','Public Safety Department','General Civic Services'] %}<option {% if complaint.department == d %}selected{% endif %}>{{ d }}</option>{% endfor %}</select></label>{% endif %}
+      <label>Public progress update<textarea name="public_message" rows="3" placeholder="Message visible in the timeline"></textarea></label>
+      <label>Resolution summary <textarea name="resolution_summary" rows="3" placeholder="Required when status is Resolved">{% if complaint.resolution_summary %}{{ complaint.resolution_summary }}{% endif %}</textarea></label>
+      {% if session.get('role') == 'admin' %}<label>Internal note (admin only)<textarea name="internal_note" rows="2" placeholder="Not shown to citizens"></textarea></label>{% endif %}
+      <button class="btn primary full" type="submit">Save workflow update</button>
+    </form></section>
+    {% endif %}
+    <section class="card mini-card"><div class="eyebrow">ROUTING RECOMMENDATION</div><h3>{{ complaint.department }}</h3><p>Suggested from the selected category. Authorized administrators can change the assignment.</p></section>
+    <section class="card mini-card"><div class="eyebrow">REFERENCE</div><h3>{{ complaint.public_id }}</h3><p>Keep this reference ID for follow-up.</p><div class="copy-id"><code>{{ complaint.public_id }}</code><button type="button" class="copy-button" data-copy="{{ complaint.public_id }}">Copy</button></div></section>
+  </aside>
+</div>
+{% endblock %}

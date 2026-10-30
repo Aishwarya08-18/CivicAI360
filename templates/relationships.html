@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Issue Link · CivicAI 360{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">ISSUE LINK</div><h1>Related complaint review</h1><p>Similarity suggestions help reviewers spot possible duplicates. They never merge records automatically.</p></div><a class="btn secondary" href="{{ url_for('dashboard') }}">← Dashboard</a></section>
+<div class="card table-card"><div class="card-heading"><div><h2>Candidate relationships</h2><p>Generated from text overlap, category, and proximity when coordinates are available.</p></div><span class="pill">{{ relationships|length }} PAIRS</span></div>
+<div class="table-wrap"><table><thead><tr><th>Complaint A</th><th>Complaint B</th><th>Location</th><th>Match signal</th><th>Review</th></tr></thead><tbody>
+{% for r in relationships %}<tr><td><b>{{ r.a_id }}</b><small class="table-sub">{{ r.a_title }}</small></td><td><b>{{ r.b_id }}</b><small class="table-sub">{{ r.b_title }}</small></td><td>{{ r.b_location }}</td><td><span class="priority {% if r.similarity >= 65 %}high{% else %}medium{% endif %}">{{ r.similarity }}%</span><small class="table-sub">{{ r.reason }}</small></td><td>{% if r.confirmed %}<span class="status-tag resolved">Reviewed</span>{% else %}<form method="post" action="{{ url_for('confirm_relationship', rel_id=r.id) }}"><button class="btn small-btn secondary" type="submit">Confirm relationship</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan="5" class="empty">No candidate pairs found. Submit more reports to test this feature.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="demo-note"><b>Method note:</b> Match scores are simple prototype signals, not calibrated probabilities. Confirm a relationship only after checking both reports.</div>
+{% endblock %}

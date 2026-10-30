@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CivicAI 360{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">C</span><span>CivicAI <b>360</b><small>Every Report Matters. Every Action Counts.</small></span></a>
+  <nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    {% if session.get('user_id') %}
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      {% if session.get('role') == 'citizen' %}
+        <a href="{{ url_for('new_complaint') }}">Report issue</a>
+      {% endif %}
+      {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('relationships') }}">Issue Link</a>
+        <a href="{{ url_for('hotspots') }}">Hotspots</a>
+        <a href="{{ url_for('export_csv') }}">Export CSV</a>
+      {% elif session.get('role') == 'officer' %}
+        <a href="{{ url_for('hotspots') }}">Hotspots</a>
+      {% endif %}
+      <span class="user-pill">{{ session.get('username') }} · {{ session.get('role') }}</span>
+      <a class="nav-button" href="{{ url_for('logout') }}">Sign out</a>
+    {% else %}
+      <a class="nav-button" href="{{ url_for('login') }}">Sign in</a>
+    {% endif %}
+  </nav>
+</header>
+<main class="page-shell">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-stack">
+      {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer"><span>© CivicAI 360 · Hackathon prototype</span><span>AI-assisted triage · Human-reviewed decisions</span></footer>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

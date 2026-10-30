@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Sign in · CivicAI 360{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-intro"><div class="eyebrow">WELCOME TO CIVICAI 360</div><h1>Better insights.<br><span>Better civic action.</span></h1><p>Sign in to submit reports, manage issue workflows, or review department assignments.</p><div class="auth-benefit">✳ AI-assisted triage with explainable results</div><div class="auth-benefit">⌖ Geographic issue insights</div><div class="auth-benefit">✓ Transparent resolution tracking</div></div>
+  <form class="auth-card" method="post">
+    <div class="eyebrow">SECURE ACCESS</div><h2>Sign in</h2><p class="muted">Use a demo account to explore the prototype.</p>
+    <label>Username<input name="username" autocomplete="username" required placeholder="Enter username"></label>
+    <label>Password<input type="password" name="password" autocomplete="current-password" required placeholder="Enter password"></label>
+    <button class="btn primary full" type="submit">Sign in →</button>
+    <div class="demo-accounts"><b>Demo accounts</b><p><code>admin</code> / <code>Admin123!</code></p><p><code>officer</code> / <code>Officer123!</code></p><p><code>citizen</code> / <code>Citizen123!</code></p></div>
+    <p class="small muted">Demo credentials are for local development only. Change them before any public deployment.</p>
+  </form>
+</section>
+{% endblock %}
