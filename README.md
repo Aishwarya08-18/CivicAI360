@@ -123,3 +123,5 @@ Uploaded images are stored in `static/uploads/`.
 - Add formal tests and database migrations.
 - Add privacy and retention policies before using real citizen data.
 - Add multilingual translation with a reliable translation provider.
+# CivicAI360
+AI-powered Civic Issue Reporting and Management System
